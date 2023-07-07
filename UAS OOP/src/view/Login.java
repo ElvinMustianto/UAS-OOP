@@ -45,7 +45,7 @@ public class Login extends javax.swing.JFrame {
                         JOptionPane.showMessageDialog(null, "Login Berhasil");
                         Home home = new Home();
                         JFrame frameHome = new JFrame("Stock Barang");
-                        frameHome.setSize(1200, 500);
+                        frameHome.setSize(1440, 500);
                         frameHome.add(home.getPanelHome());
                         frameHome.setVisible(true);
                         dispose();
