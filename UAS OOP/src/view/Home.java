@@ -67,14 +67,15 @@ public class Home extends javax.swing.JFrame {
             ResultSet resultSet = statement.executeQuery();
 
             while (resultSet.next()) {
-                Object[] row = new Object[7];
-                row[0] = resultSet.getString("id_barang");
-                row[1] = resultSet.getString("nama_barang");
-                row[2] = resultSet.getString("jenis_barang");
-                row[3] = resultSet.getString("merk_barang");
-                row[4] = resultSet.getString("berat");
-                row[5] = resultSet.getString("jumlah");
-                row[6] = resultSet.getString("harga");
+                Object[] row = new Object[8];
+                row[0] = resultSet.getInt("id");
+                row[1] = resultSet.getString("id_barang");
+                row[2] = resultSet.getString("nama_barang");
+                row[3] = resultSet.getString("jenis_barang");
+                row[4] = resultSet.getString("merk_barang");
+                row[5] = resultSet.getString("berat");
+                row[6] = resultSet.getString("jumlah");
+                row[7] = resultSet.getString("harga");
 
                 model.addRow(row);
             }
@@ -85,7 +86,7 @@ public class Home extends javax.swing.JFrame {
 
     private void updateBarang() {
         barang.setId(Integer.parseInt(filedNo.getText()));
-        barang.setIdBarang(fieldID.getText());  
+        barang.setIdBarang(fieldID.getText());
         barang.setNamaBarang(fieldNama.getText());
         barang.setJenisBarang((String) cmbJenis.getSelectedItem());
         barang.setMerkBarang((String) cmbMerk.getSelectedItem());
@@ -93,7 +94,7 @@ public class Home extends javax.swing.JFrame {
         barang.setJumlahBarang(filedJumlah.getText());
         barang.setHargaBarang(fieldHarga.getText());
 
-        String sql = "UPDATE barang SET nama_barang=?, jenis_barang=?, merk_barang=?, berat=?, jumlah=?, harga=? WHERE id_barang=?";
+        String sql = "UPDATE barang SET id_barang=?, nama_barang=?, jenis_barang=?, merk_barang=?, berat=?, jumlah=?, harga=? WHERE id=?";
         try (Connection conn = Connect.getConnection();
              PreparedStatement statement = conn.prepareStatement(sql)) {
             statement.setString(1, barang.getIdBarang());
@@ -103,6 +104,7 @@ public class Home extends javax.swing.JFrame {
             statement.setString(5, barang.getBeratBarang());
             statement.setString(6, barang.getJumlahBarang());
             statement.setString(7, barang.getHargaBarang());
+            statement.setInt(8, barang.getId());
 
             int rowsUpdated = statement.executeUpdate();
             if (rowsUpdated > 0) {
@@ -119,6 +121,10 @@ public class Home extends javax.swing.JFrame {
     }
 
     private void hapusBarang() {
+        int selectedRow = tabelBarang.getSelectedRow();
+        int id;
+        id = (int) tabelBarang.getValueAt(selectedRow, 0);
+        String sql = "DELETE FROM barang WHERE id = ?";
         String idBarang = fieldSearch.getText();
         if(idBarang != null && !idBarang.isEmpty()) {
             try {
@@ -131,11 +137,21 @@ public class Home extends javax.swing.JFrame {
         }
         getData();
 
+        try (Connection conn = Connect.getConnection();
+             PreparedStatement statement = conn.prepareStatement(sql)) {
+            statement.setInt(1, id);
+            statement.executeUpdate();
+            JOptionPane.showMessageDialog(null, "Data telah berhasil dihapus");
+            getData(); // Refresh tampilan tabel setelah penghapusan data
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(null, "Gagal menghapus data: " + ex.getMessage());
+        }
     }
 
     private void getData()  {
         DefaultTableModel model = new DefaultTableModel();
         tabelBarang.setModel(model);
+        model.addColumn("NO");
         model.addColumn("ID Barang");
         model.addColumn("Nama");
         model.addColumn("Jenis");
@@ -150,14 +166,15 @@ public class Home extends javax.swing.JFrame {
              ResultSet resultSet = statement.executeQuery(sql)) {
 
             while (resultSet.next()) {
-                Object[] row = new Object[7];
-                row[0] = resultSet.getString("id_barang");
-                row[1] = resultSet.getString("nama_barang");
-                row[2] = resultSet.getString("jenis_barang");
-                row[3] = resultSet.getString("merk_barang");
-                row[4] = resultSet.getString("berat");
-                row[5] = resultSet.getString("jumlah");
-                row[6] = resultSet.getString("harga");
+                Object[] row = new Object[8];
+                row[0] = resultSet.getInt("id");
+                row[1] = resultSet.getString("id_barang");
+                row[2] = resultSet.getString("nama_barang");
+                row[3] = resultSet.getString("jenis_barang");
+                row[4] = resultSet.getString("merk_barang");
+                row[5] = resultSet.getString("berat");
+                row[6] = resultSet.getString("jumlah");
+                row[7] = resultSet.getString("harga");
 
                 model.addRow(row);
             }
@@ -169,6 +186,7 @@ public class Home extends javax.swing.JFrame {
     }
 
     private void tambahBarang(){
+        barang.setId(Integer.parseInt(filedNo.getText()));
         barang.setIdBarang(fieldID.getText());
         barang.setNamaBarang(fieldNama.getText());
         barang.setJenisBarang((String) cmbJenis.getSelectedItem());
@@ -177,16 +195,17 @@ public class Home extends javax.swing.JFrame {
         barang.setJumlahBarang(filedJumlah.getText());
         barang.setHargaBarang(fieldHarga.getText());
 
-        String sql = "INSERT INTO barang (id_barang, nama_barang, jenis_barang, merk_barang, berat,jumlah, harga) VALUES(?,?,?,?,?,?,?)";
+        String sql = "INSERT INTO barang (id, id_barang, nama_barang, jenis_barang, merk_barang, berat, jumlah, harga) VALUES(?,?,?,?,?,?,?,?)";
         try (Connection conn = Connect.getConnection();
              PreparedStatement statement = conn.prepareStatement(sql)) {
-            statement.setString(1,barang.getIdBarang());
-            statement.setString(2, barang.getNamaBarang());
-            statement.setString(3, barang.getJenisBarang());
-            statement.setString(4, barang.getMerkBarang());
-            statement.setString(5, barang.getBeratBarang());
-            statement.setString(6, barang.getJumlahBarang());
-            statement.setString(7, barang.getHargaBarang());
+            statement.setString(2,barang.getIdBarang());
+            statement.setString(3, barang.getNamaBarang());
+            statement.setString(4, barang.getJenisBarang());
+            statement.setString(5, barang.getMerkBarang());
+            statement.setString(6, barang.getBeratBarang());
+            statement.setString(7, barang.getJumlahBarang());
+            statement.setString(8, barang.getHargaBarang());
+            statement.setInt(1, barang.getId());
             statement.executeUpdate();
             JOptionPane.showMessageDialog(null, "Data telah berhasil disimpan");
             getData(); // Refresh tampilan tabel setelah penyimpanan data
@@ -210,3 +229,4 @@ public class Home extends javax.swing.JFrame {
         return splitPane;
     }
 }
+
